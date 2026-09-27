@@ -1,0 +1,5 @@
+{
+  "name": "drawio-diagram",
+  "description": "Light-themed draw.io diagrams in a consistent house style (architecture, pipelines, Azure resource groups with Azure icons), generated from Python and checked by rendering to PNG",
+  "author": { "name": "Geert Baeke" }
+}

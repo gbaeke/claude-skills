@@ -1,0 +1,14 @@
+{
+  "name": "geba-skills",
+  "owner": {
+    "name": "Geert Baeke"
+  },
+  "description": "Geert Baeke's Claude Code skills: one plugin per skill, install only what you need",
+  "plugins": [
+    {
+      "name": "drawio-diagram",
+      "source": "./plugins/drawio-diagram",
+      "description": "Light-themed draw.io diagrams in a consistent house style (architecture, pipelines, Azure resource groups with Azure icons), generated from Python and checked by rendering to PNG"
+    }
+  ]
+}
