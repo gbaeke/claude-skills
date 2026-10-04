@@ -2,7 +2,7 @@
 # Add or remove an address of the app in its WorkOS environment: the redirect URI (<url>/auth/callback) and the
 # sign-out URI (<url>/). Other URIs and the defaults are kept. Uses the WorkOS CLI (npm install -g workos, then
 # workos auth login) and jq.
-#   WORKOS_CLIENT_ID=client_... scripts/workos-uris.sh add http://localhost:8000
+#   WORKOS_CLIENT_ID=client_... scripts/workos-uris.sh add http://localhost:{{port}}
 #   WORKOS_CLIENT_ID=client_... scripts/workos-uris.sh remove https://{{app}}.<...>.azurecontainerapps.io
 set -euo pipefail
 cd "$(dirname "$0")/.."

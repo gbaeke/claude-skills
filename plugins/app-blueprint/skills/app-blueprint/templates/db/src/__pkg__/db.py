@@ -1,4 +1,7 @@
 from collections.abc import Iterator
+{{#azure}}
+from collections.abc import Callable
+{{/azure}}
 from pathlib import Path
 from typing import Annotated
 
@@ -22,22 +25,25 @@ def make_engine(settings: Settings) -> Engine:
     engine = create_engine(settings.db_url, pool_pre_ping=True)
 {{#azure}}
     if settings.database_entra_auth:
-        _use_entra_tokens(engine)
+        password = entra_password()
+
+        @event.listens_for(engine, "do_connect")
+        def _token(_dialect, _conn_rec, _cargs, cparams) -> None:
+            cparams["password"] = password()
+
 {{/azure}}
     return engine
 {{#azure}}
 
 
-def _use_entra_tokens(engine: Engine) -> None:
-    """Azure: sign in to PostgreSQL with the app's managed identity (or your az login, locally) instead of a
-    password. Each new connection gets a fresh token; azure-identity caches it until shortly before it expires."""
+def entra_password() -> Callable[[], str]:
+    """Azure: a function giving a PostgreSQL password that is an Entra token for the app's managed identity (or your
+    az login, locally). Call it per new connection; azure-identity caches the token until shortly before it expires.
+    Any other pool needs it too, e.g. psycopg_pool: ConnectionPool(url, kwargs=lambda: {"password": password()})."""
     from azure.identity import DefaultAzureCredential
 
     credential = DefaultAzureCredential()
-
-    @event.listens_for(engine, "do_connect")
-    def _token(_dialect, _conn_rec, _cargs, cparams) -> None:
-        cparams["password"] = credential.get_token(ENTRA_SCOPE).token
+    return lambda: credential.get_token(ENTRA_SCOPE).token
 {{/azure}}
 
 

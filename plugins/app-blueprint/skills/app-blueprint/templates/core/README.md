@@ -7,7 +7,7 @@
 Needs [uv](https://docs.astral.sh/uv/){{#frontend}}, Node.js 24+{{/frontend}}{{#db}} and Docker (for PostgreSQL){{/db}}.
 
 ```bash
-scripts/run-local.sh        # http://localhost:8000
+scripts/run-local.sh        # http://localhost:{{port}}
 ```
 
 Settings live in `.env` (created from `.env.example` on the first run).
@@ -21,7 +21,7 @@ scripts/run-local.sh --dev  # hot reload on http://localhost:5173
 scripts/check.sh            # lint, types, tests: what CI runs
 ```
 
-API docs: http://localhost:8000/api/docs
+API docs: http://localhost:{{port}}/api/docs
 {{#azure}}
 
 ## Deploy to Azure
