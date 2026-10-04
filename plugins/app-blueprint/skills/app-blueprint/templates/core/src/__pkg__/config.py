@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     host: str = "127.0.0.1"
-    port: int = 8000
+    port: int = {{port}}  # local default, derived from the app's name; the container uses 8000
     log_json: bool = False  # JSON log lines (the deploy sets it)
 {{#db}}
     database_url: str = "postgresql://{{pkg}}:{{pkg}}@localhost:{{pg_port}}/{{pkg}}"

@@ -18,6 +18,9 @@ SQLAlchemy 2 typed models (`Mapped[...]`, `mapped_column`) in `models.py`. `Base
 (`Settings.db_url` turns `postgresql://` into `postgresql+psycopg://`) and `pool_pre_ping=True`, because managed
 PostgreSQL drops idle connections and a scaled-to-zero app sleeps for hours.
 
+Use `JSON`, not `JSONB`, for data whose key order matters (a specs table shown as label → value): JSONB sorts its
+keys. JSONB is right when you query inside the document.
+
 ## Migrations (Alembic)
 
 - `scripts/db.sh revision "add x"` upgrades the database first, then autogenerates from `models.py`. **Read every
@@ -32,6 +35,9 @@ PostgreSQL drops idle connections and a scaled-to-zero app sleeps for hours.
   migrate once. This works because migrations stay backwards compatible with the running version: add a column,
   deploy, then drop the old one in a later release. A destructive change the old version can't survive needs a
   two-step deploy. For long data migrations, use a Container Apps Job instead of startup.
+- **Tables a library owns** and migrates itself (LangGraph checkpointers, job queues): add their prefix to
+  `EXTERNAL_TABLE_PREFIXES` in `migrations/env.py`, so `alembic check` ignores them, and call the library's `setup()`
+  at startup. Don't put that setup in an Alembic migration: its schema evolves with the package.
 - The settings reach `migrations/env.py` through `Config.attributes["settings"]`, not a URL string, so passwords
   need no `%` escaping and Entra tokens work.
 
@@ -48,7 +54,9 @@ On Azure, PostgreSQL Flexible Server accepts **Entra tokens only** (`passwordAut
 recommendation. The app's user-assigned managed identity is an Entra admin of the server (it runs migrations), and
 so is the person who deployed it, for `psql`. `DATABASE_ENTRA_AUTH=true` makes `db.py` fetch a token per new
 connection (`DefaultAzureCredential`, which picks the managed identity via `AZURE_CLIENT_ID`; azure-identity caches
-the token). `DATABASE_URL` holds no password, so it is not a secret.
+the token). `DATABASE_URL` holds no password, so it is not a secret. A second pool (a checkpointer's psycopg_pool, for instance)
+needs the same tokens: `password = entra_password()` from `db.py`, then
+`ConnectionPool(url, kwargs=lambda: {..., "password": password()})` (psycopg_pool 3.3+ accepts a callable).
 
 Connect with `psql` as yourself:
 `PGPASSWORD=$(az account get-access-token --resource-type oss-rdbms --query accessToken -o tsv) psql "host=<server>.postgres.database.azure.com user=<you@tenant> dbname=<pkg> sslmode=require"`

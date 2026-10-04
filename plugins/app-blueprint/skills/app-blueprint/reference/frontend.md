@@ -37,6 +37,9 @@ declares a TypeScript 5 peer and forces `--legacy-peer-deps`.
   qc.invalidateQueries({ queryKey: listNotesQueryKey() }) })`. Never `useEffect` + `fetch`.
 - UI state stays in `useState` near where it's used. Add a store only once several distant components share client
   state, which is rare when server state lives in TanStack Query.
+- Effects only for real synchronisation with something outside React. "Scroll to the newest message" needs none: render
+  `<div key={messages.length} ref={scrollIntoView} />` at the end of the list, with a module-level
+  `const scrollIntoView = (el: HTMLElement | null) => el?.scrollIntoView({ block: 'end' })`. A new key remounts it.
 - Layout: `pages/` (one per screen, routes in `main.tsx`), `components/` (shared), `lib/`. Put a component used by one
   page next to that page or inside it.
 

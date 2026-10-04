@@ -11,6 +11,16 @@ service, so green locally means green in CI.
 Before calling a change done, run `scripts/check.sh` and report its result faithfully. If a step was skipped, say
 so.
 
+## Seeing the UI without a browser extension
+
+- Screenshots: `chromium --headless=new --screenshot=out.png --window-size=1280,900 --virtual-time-budget=4000 <url>`.
+  Add `--force-dark-mode` for dark, `--blink-settings=preferredColorScheme=1` for light.
+- Clicks and state (open a panel, check storage across a reload): a short Chrome DevTools Protocol script, e.g. with
+  `uv run --with websocket-client`, against `chromium --headless=new --remote-debugging-port=9222`.
+- Read every screenshot before calling a UI change done, at desktop and at phone width.
+- Stop a server you started by its PID (`$!` when you start it, or `ss -ltnp "sport = :$PORT"`), never with
+  `pkill -f <pattern>`: the pattern also matches your own shell's command line, and other people's processes.
+
 ## Python
 
 - **ruff** at line length 120, rules `E W F I B UP SIM C4 RET PTH RUF FAST S ARG T20 ERA C90`: the defaults plus

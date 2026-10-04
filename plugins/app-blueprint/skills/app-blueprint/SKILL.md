@@ -47,10 +47,12 @@ trade-offs. Read the relevant reference file before changing that part of a proj
 
 ## A. New project
 
-1. **Ask** (AskUserQuestion, one round): the name (kebab-case), what the app is for in one sentence, and the modules,
-   with the defaults above. Ask about auth explicitly; it stays off unless they want it.
+1. **Ask only what the brief leaves open** (AskUserQuestion, one round): the name (kebab-case), what the app is for
+   in one sentence, and the modules (defaults above; auth stays off unless they want it). When the brief already
+   answers all of it, don't ask.
 2. **Prerequisites.** Check them, and offer install commands without running system installs unasked: `uv`; Node 24+
-   with frontend; Docker with db; `az` (and `az login` for deploys) with azure. With **auth**, also the WorkOS CLI:
+   with frontend; Docker with db; `az` (and `az login` for deploys) with azure; `shellcheck` (else check.sh skips
+   that step; `uvx --from shellcheck-py shellcheck` works without installing). With **auth**, also the WorkOS CLI:
    `command -v workos` (install with `npm install -g workos`), then `workos auth status --mode agent`. If it isn't
    authenticated, have the user run `! workos auth login`. The CLI manages redirect/sign-out URIs, users and
    environments, so no dashboard clicking is needed. See `reference/auth-workos.md`.
@@ -62,10 +64,12 @@ trade-offs. Read the relevant reference file before changing that part of a proj
    behind. A new scaffold should only show the holds listed under "Freshness".
 5. **Make it theirs:** write the one-paragraph description at the top of `CLAUDE.md` and `README.md`. Replace the
    `notes` example with the app's first real resource, keeping its shape: model → migration
-   (`scripts/db.sh revision`) → router → test → page. Then delete what's left of `notes`.
+   (`scripts/db.sh revision`) → router → test → page. Then delete what's left of `notes`. Run
+   `scripts/db.sh downgrade base` (or `reset`) **before** deleting its migration, or the database points at a
+   revision that no longer exists. If no route uses `get_or_404` afterwards, delete it too.
 6. **Auth chosen:** create or choose the WorkOS environment, put `WORKOS_CLIENT_ID`, `WORKOS_API_KEY` and
    `SESSION_SECRET` (`openssl rand -base64 32`) into `.env` (never into the chat), and run
-   `scripts/workos-uris.sh add http://localhost:8000` (and `:5173` for Vite).
+   `scripts/workos-uris.sh add http://localhost:<PORT>` (the app's port from `.env`; and `:5173` for Vite).
 7. Suggest the first commit. Make it only after the user says yes.
 
 ## B. Add a module to an existing project
@@ -92,7 +96,8 @@ from.
 - Current **holds**, each with a reason. Re-check every hold whenever versions come up, and drop it once the reason
   is gone:
   - **TypeScript 6, not 7.** TS 7 (the native port) has no JavaScript compiler API yet. `@hey-api/openapi-ts` (and
-    `openapi-typescript`) crash on it. Re-test with `npm i -D typescript@latest && npm run gen:api`.
+    `openapi-typescript`) crash on it. Re-test in a scratch copy of `frontend/` (`npm i -D typescript@latest &&
+    npm run gen:api`), never in the project itself: it rewrites `package.json` and the lockfile.
   - **Node 24 in the Dockerfile and CI** until Node 26 becomes LTS (2026-10-28).
 - Keep the PostgreSQL major the same in `compose.yaml`, CI and `infra/main.bicep`.
 
@@ -102,6 +107,7 @@ from.
 - `reference/database.md`: local PostgreSQL, models, migrations, tests, Entra auth on Azure
 - `reference/frontend.md`: why a SPA, the generated client, data fetching, styling, linting, tests
 - `reference/auth-workos.md`: sealed sessions, the WorkOS CLI, setup, what it does and doesn't protect
+- `reference/ai.md`: an LLM assistant or agent (Azure Foundry, LangChain Deep Agents, checkpointer, tests, secrets)
 - `reference/azure.md`: the infra/app split, the scripts, identity, what's left out and how to add it
 - `reference/quality.md`: the gate, lint and type rules, hooks and permissions, CI, Dependabot
 - `reference/checklist.md`: the assessment list for workflow C

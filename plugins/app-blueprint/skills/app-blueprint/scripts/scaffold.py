@@ -11,7 +11,8 @@ Modules (each a folder in ../templates, plus {{#module}} ... {{/module}} blocks 
   azure     Bicep + scripts/azure-up.sh / azure-down.sh for Azure Container Apps                         (default on)
 
 Template syntax, in file contents and paths:
-  {{app}} my-app   {{pkg}} my_app   {{title}} My App   {{pg_port}} a port per app, so projects don't clash
+  {{app}} my-app   {{pkg}} my_app   {{title}} My App   {{port}} / {{pg_port}}: local HTTP and PostgreSQL ports per
+  app, so several projects run side by side
   __pkg__ in a path becomes the package name. A line holding {{#m}} / {{/m}} opens / closes a block kept only with
   module m; {{^m}} / {{/m}} a block kept only without it. Marker lines themselves are dropped. Opened and closed on
   one line ("PostgreSQL{{#auth}} and WorkOS{{/auth}}"), the block is just that phrase.
@@ -148,6 +149,7 @@ def main() -> None:
         "title": args.title or args.name.replace("-", " ").title(),
         # a stable port per app, so several projects' databases can run side by side
         "pg_port": str(54320 + zlib.crc32(args.name.encode()) % 600),
+        "port": str(8100 + zlib.crc32(f"{args.name}:http".encode()) % 800),  # local HTTP; 8000 inside the container
         "uv_build": uv_build_requirement() if not args.no_install else "uv_build",
     }
     args.dest.mkdir(parents=True, exist_ok=True)

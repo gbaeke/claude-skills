@@ -47,7 +47,7 @@ login`. Check with `workos auth status --mode agent` (JSON, `authenticated: true
    an API key (dashboard: API Keys).
 2. In `.env` (never in the chat): `WORKOS_CLIENT_ID`, `WORKOS_API_KEY`, `SESSION_SECRET` (`openssl rand -base64 32`;
    changing it signs everyone out), and optionally `ALLOWED_USERS`.
-3. Run `WORKOS_CLIENT_ID=... scripts/workos-uris.sh add http://localhost:8000`, and the same for `:5173` when using
+3. Run `WORKOS_CLIENT_ID=... scripts/workos-uris.sh add http://localhost:<PORT>`, and the same for `:5173` when using
    `--dev`. In the dashboard: sign-up off if only invited people may enter, and sign-in endpoint `<app>/auth/login`.
 4. On Azure: `WORKOS_CLIENT_ID=... WORKOS_API_KEY=... scripts/azure-deploy.sh` stores them in the deployment state
    (`.azure/<rg>.env`). `SESSION_SECRET` is generated. The app's https address is added in WorkOS automatically, and
