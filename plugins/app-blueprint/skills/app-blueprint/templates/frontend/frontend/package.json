@@ -1,0 +1,15 @@
+{
+  "name": "{{app}}-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint --deny-warnings",
+    "format": "prettier --write --log-level warn .",
+    "format:check": "prettier --check --log-level warn .",
+    "preview": "vite preview",
+    "gen:api": "uv run --project .. python -m {{pkg}}.openapi > node_modules/.openapi.json && openapi-ts"
+  }
+}

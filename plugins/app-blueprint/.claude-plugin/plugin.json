@@ -1,0 +1,5 @@
+{
+  "name": "app-blueprint",
+  "description": "Scaffold, extend or tidy up full-stack apps the house way: FastAPI + uv + ruff + pyright, React/Vite SPA with a generated API client, PostgreSQL + Alembic, optional WorkOS sign-in, Azure Container Apps via Bicep, one quality gate shared with CI",
+  "author": { "name": "Geert Baeke" }
+}

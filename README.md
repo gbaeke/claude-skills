@@ -20,6 +20,7 @@ marketplace in `/plugin` → Marketplaces).
 | Plugin | What it does |
 |---|---|
 | `drawio-diagram` | Light-themed draw.io diagrams in a house style: architecture, pipelines, Azure resource groups with Azure icons. Generated from Python, verified by rendering to PNG. |
+| `app-blueprint` | New full-stack apps (or a module added to an existing one): FastAPI, React/Vite, PostgreSQL + Alembic, optional WorkOS, Azure Container Apps. Renders a project that passes its own `scripts/check.sh` on day one, with the latest package versions. |
 
 ## Add a skill
 

@@ -9,6 +9,11 @@
       "name": "drawio-diagram",
       "source": "./plugins/drawio-diagram",
       "description": "Light-themed draw.io diagrams in a consistent house style (architecture, pipelines, Azure resource groups with Azure icons), generated from Python and checked by rendering to PNG"
+    },
+    {
+      "name": "app-blueprint",
+      "source": "./plugins/app-blueprint",
+      "description": "Scaffold, extend or tidy up full-stack apps: FastAPI + uv + ruff + pyright, React/Vite SPA with a generated API client, PostgreSQL + Alembic, optional WorkOS sign-in, Azure Container Apps via Bicep, one quality gate shared with CI"
     }
   ]
 }

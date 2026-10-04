@@ -1,0 +1,37 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+{{#db}}
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: {{pkg}}
+          POSTGRES_PASSWORD: {{pkg}}
+          POSTGRES_DB: {{pkg}}_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U {{pkg}}" --health-interval 2s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://{{pkg}}:{{pkg}}@localhost:5432/{{pkg}}_test
+{{/db}}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+{{#frontend}}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+{{/frontend}}
+      - run: uv sync --locked
+      - run: scripts/check.sh
