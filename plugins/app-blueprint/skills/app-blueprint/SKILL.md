@@ -50,7 +50,7 @@ trade-offs. Read the relevant reference file before changing that part of a proj
 1. **Ask only what the brief leaves open** (AskUserQuestion, one round): the name (kebab-case), what the app is for
    in one sentence, and the modules (defaults above; auth stays off unless they want it). When the brief already
    answers all of it, don't ask.
-2. **Prerequisites.** Check them, and offer install commands without running system installs unasked: `uv`; Node 24+
+2. **Prerequisites.** Check them, and offer install commands without running system installs unasked: `uv`; Node 26+
    with frontend; Docker with db; `az` (and `az login` for deploys) with azure; `shellcheck` (else check.sh skips
    that step; `uvx --from shellcheck-py shellcheck` works without installing). With **auth**, also the WorkOS CLI:
    `command -v workos` (install with `npm install -g workos`), then `workos auth status --mode agent`. If it isn't
@@ -97,8 +97,8 @@ from.
   is gone:
   - **TypeScript 6, not 7.** TS 7 (the native port) has no JavaScript compiler API yet. `@hey-api/openapi-ts` (and
     `openapi-typescript`) crash on it. Re-test in a scratch copy of `frontend/` (`npm i -D typescript@latest &&
-    npm run gen:api`), never in the project itself: it rewrites `package.json` and the lockfile.
-  - **Node 24 in the Dockerfile and CI** until Node 26 becomes LTS (2026-10-28).
+    npm run gen:api`), never in the project itself: it rewrites `package.json` and the lockfile. The generated
+    `.github/dependabot.yml` ignores TypeScript majors for the same reason; remove that rule with the hold.
 - Keep the PostgreSQL major the same in `compose.yaml`, CI and `infra/main.bicep`.
 
 ## Reference

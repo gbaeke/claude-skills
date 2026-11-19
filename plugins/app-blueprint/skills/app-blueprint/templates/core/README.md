@@ -4,7 +4,7 @@
 
 ## Run it
 
-Needs [uv](https://docs.astral.sh/uv/){{#frontend}}, Node.js 24+{{/frontend}}{{#db}} and Docker (for PostgreSQL){{/db}}.
+Needs [uv](https://docs.astral.sh/uv/){{#frontend}}, Node.js 26+{{/frontend}}{{#db}} and Docker (for PostgreSQL){{/db}}.
 
 ```bash
 scripts/run-local.sh        # http://localhost:{{port}}

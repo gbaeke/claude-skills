@@ -23,11 +23,11 @@ jobs:
 {{/db}}
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3  # setup-uv publishes no moving major tag; Dependabot bumps it
 {{#frontend}}
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci

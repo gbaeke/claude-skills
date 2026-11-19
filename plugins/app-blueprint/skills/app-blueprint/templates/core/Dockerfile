@@ -1,7 +1,7 @@
 # The app as one image: the API and, built in the first stage, the frontend it serves.
 #   docker build -t {{app}} .
 {{#frontend}}
-FROM node:24-slim AS frontend
+FROM node:26-slim AS frontend
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci

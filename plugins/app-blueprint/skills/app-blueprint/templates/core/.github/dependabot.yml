@@ -13,6 +13,10 @@ updates:
     schedule: { interval: weekly }
     groups:
       npm-minor: { update-types: [minor, patch] }
+    ignore:
+      # the TypeScript 6 hold (SKILL.md, Freshness): @hey-api/openapi-ts crashes on TS 7; drop this with the hold
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
 {{/frontend}}
   - package-ecosystem: github-actions
     directory: /
