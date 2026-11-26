@@ -1,0 +1,8 @@
+{
+  "name": "deep-agent-a2a",
+  "version": "1.0.0",
+  "description": "Scaffold LangChain Deep Agents served over A2A: a reusable A2A wrapper with streaming, progress and approvals, MCP tools via LangChain's built-in adapter, PostgreSQL checkpoints behind PgBouncer with a database per agent, a BFF + web UI, and smoke and load tests, in Docker Compose",
+  "author": {
+    "name": "Geert Baeke"
+  }
+}

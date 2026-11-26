@@ -1,0 +1,41 @@
+# What makes this agent this agent. The code in agent/ is shared by every agent;
+# AGENT_CONFIG (compose.yaml) points a container at its config folder.
+
+name = "{{agent}}"
+display_name = "{{agent_title}}"
+description = "{{agent_description}}"
+# Shown in the Agent Card, and by the web UI as sample questions.
+examples = [
+    "What can you help me with?",
+    # {{#mcp}}
+    "Please save a note: the team offsite is on 12 March in Ghent.",
+    # {{/mcp}}
+]
+
+system_prompt = """You are the {{agent_title}}. {{agent_description}}
+Answer briefly. Read a matching skill before you act.
+# {{#mcp}}
+When the user asks you to remember or record something, save it with the save_note tool.
+Before writing a note, read the note-writing skill. Always tell the user the note id.
+# {{/mcp}}
+"""
+
+# {{#mcp}}
+# Tools come from this MCP server (the MCP_URL environment variable overrides it).
+mcp_url = "http://mcp-server:8001/mcp"
+
+# Tools that pause for human approval before they run (human-in-the-loop).
+approve_tools = ["save_note"]
+
+# Progress shown while the agent works: tool -> text while the model proposes it ...
+[progress]
+save_note = "Preparing a note…"
+
+# ... and tool -> text when an approved call runs.
+[running]
+save_note = "Saving the note on the MCP server…"
+# {{/mcp}}
+# {{^mcp}}
+# No MCP server and no tools that need approval: this agent only answers.
+approve_tools = []
+# {{/mcp}}
