@@ -1,0 +1,112 @@
+# {{title}}
+# {{#web}}
+# Web UI -> BFF -> (A2A) -> {{agent}}-agent
+# {{/web}}
+# CLI    ---------(A2A) -> any agent
+# {{#mcp}}
+# {{agent}}-agent -> (MCP) -> mcp-server
+# {{/mcp}}
+# Every service -> PgBouncer -> PostgreSQL (one database per agent{{#web}} + one for the BFF{{/web}}).
+# The model is reached through an OpenAI-compatible gateway (MODEL_BASE_URL).
+
+name: {{app}}
+
+x-python: &python
+  build: { context: ., dockerfile: Dockerfile }
+  restart: unless-stopped
+
+# Settings shared by every agent; each agent adds its own config folder and database.
+x-agent: &agent
+  <<: *python
+  build: { context: ., dockerfile: Dockerfile, args: { SERVICE: agent } }
+  command: ["python", "main.py"]
+  extra_hosts: ["host.docker.internal:host-gateway"]
+  depends_on:
+    pgbouncer: { condition: service_started }
+    # {{#mcp}}
+    mcp-server: { condition: service_started }
+    # {{/mcp}}
+  # No host port: callers reach agents inside the network, so `--scale` works.
+
+x-model-env: &model-env
+  MODEL: ${MODEL:-{{model}}}
+  MODEL_BASE_URL: ${MODEL_BASE_URL:-{{model_base_url}}}
+  MODEL_API_KEY: ${MODEL_API_KEY:-not-needed}   # a gateway holds the real keys
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro   # creates the databases
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      retries: 30
+
+  # Connection pooler: services connect here (port 6432, like Azure's built-in
+  # PgBouncer); it lends one of a few real PostgreSQL connections per transaction.
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.26.1-p0
+    environment:
+      DB_HOST: postgres                # no DB_NAME: every database is passed through
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      AUTH_TYPE: scram-sha-256
+      LISTEN_PORT: "6432"
+      POOL_MODE: transaction           # a server connection is lent for one transaction
+      DEFAULT_POOL_SIZE: "10"          # at most 10 real connections per database
+      MAX_CLIENT_CONN: "1000"          # client connections PgBouncer accepts
+      MAX_PREPARED_STATEMENTS: "200"   # keeps prepared statements (asyncpg) working in transaction mode
+      ADMIN_USERS: postgres            # lets `psql ... pgbouncer` run SHOW POOLS
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # {{#mcp}}
+  mcp-server:
+    <<: *python
+    build: { context: ., dockerfile: Dockerfile, args: { SERVICE: mcp-server } }
+    command: ["python", "server.py"]
+
+  # {{/mcp}}
+  {{agent}}-agent:
+    <<: *agent
+    environment:
+      <<: *model-env
+      AGENT_CONFIG: agents/{{agent}}
+      DATABASE_URL: postgresql://postgres:postgres@pgbouncer:6432/{{agent_db}}
+      PUBLIC_URL: http://{{agent}}-agent:8000   # the URL in the Agent Card
+
+  # --- scaffold.py add-agent inserts new agents above this line ---
+
+  # {{#web}}
+  bff:
+    <<: *python
+    build: { context: ., dockerfile: Dockerfile, args: { SERVICE: bff } }
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@pgbouncer:6432/bff
+      AGENT_URL: http://{{agent}}-agent:8000
+      AGENT_SERVICE: {{agent}}-agent           # only for the "check the logs" hint in the UI
+    ports: ["{{port}}:8080"]
+    depends_on:
+      pgbouncer: { condition: service_started }
+      {{agent}}-agent: { condition: service_started }
+
+  # {{/web}}
+  # Terminal A2A client, smoke test and load test; not started by `up`:
+  #   docker compose run --rm cli http://{{agent}}-agent:8000
+  #   docker compose run --rm --entrypoint python cli smoke.py http://{{agent}}-agent:8000
+  #   docker compose run --rm --entrypoint python cli stress.py http://{{agent}}-agent:8000 20 40
+  cli:
+    <<: *python
+    build: { context: ., dockerfile: Dockerfile, args: { SERVICE: cli } }
+    entrypoint: ["python", "chat.py"]
+    restart: "no"
+    profiles: ["tools"]
+
+volumes:
+  pgdata:

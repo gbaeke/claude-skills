@@ -21,6 +21,7 @@ marketplace in `/plugin` → Marketplaces).
 |---|---|
 | `drawio-diagram` | Light-themed draw.io diagrams in a house style: architecture, pipelines, Azure resource groups with Azure icons. Generated from Python, verified by rendering to PNG. |
 | `app-blueprint` | New full-stack apps (or a module added to an existing one): FastAPI, React/Vite, PostgreSQL + Alembic, optional WorkOS, Azure Container Apps. Renders a project that passes its own `scripts/check.sh` on day one, with the latest package versions. |
+| `deep-agent-a2a` | New LangChain Deep Agents projects served over A2A (or another agent added to one): reusable A2A wrapper with streaming, progress and approvals, MCP tools, PostgreSQL + PgBouncer with a database per agent, BFF + web UI, CLI with smoke and load tests, all in Docker Compose. Uses versions verified end to end, or the newest on request. |
 
 ## Add a skill
 

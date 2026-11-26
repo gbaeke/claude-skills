@@ -1,0 +1,6 @@
+[project]
+name = "mcp-server"
+version = "0.1.0"
+description = "Sample MCP server with one tool"
+requires-python = ">=3.13"
+dependencies = ["fastmcp==4.2.6"]

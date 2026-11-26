@@ -1,0 +1,15 @@
+[project]
+name = "agent"
+version = "0.1.0"
+description = "Deep agent wrapped in A2A"
+requires-python = ">=3.13"
+dependencies = [
+    "deepagents==0.7.42",
+    "langchain[mcp]==1.5.2",            # includes the built-in MCP adapter (langchain.mcp, beta)
+    "langchain-openai==1.8.5",
+    "langgraph==1.2.24",
+    "langgraph-checkpoint-postgres==3.2.1",
+    "psycopg[binary,pool]==3.3.9",
+    "a2a-sdk[http-server,postgresql]==1.3.1",
+    "uvicorn==0.54.0",
+]
